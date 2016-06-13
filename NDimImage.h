@@ -77,28 +77,29 @@ class NDimImage
 *******************************************************************************/
         void printImage() const;
 
-		// Simple getters
-		unsigned int getMode() const { return mode; }
-		unsigned int getNumDims() const { return num_dims; }
-		unsigned int getImageSize() const { return image_size; }
-		unsigned int *getDims() const {
-			unsigned int *temp_dims = new unsigned int[num_dims];
-			memcpy(temp_dims, dims, num_dims * sizeof(unsigned int));
-			return temp_dims;
-		}
+        // Simple getters
+        unsigned int getMode() const { return mode; }
+        unsigned int getNumDims() const { return num_dims; }
+        unsigned int getImageSize() const { return image_size; }
+        unsigned int *getDims() const {
+            unsigned int *temp_dims = new unsigned int[num_dims];
+            memcpy(temp_dims, dims, num_dims * sizeof(unsigned int));
+            return temp_dims;
+        }
 
     private:
 
         // Methods
-		void printImage(const unsigned int *start, const unsigned int *end,
-			unsigned int *coords, unsigned int i, unsigned int image_index,
-			unsigned int area_covered) const;
-		void getDownSampled(unsigned int *modes, unsigned int *coords,
-			unsigned int &block_num, unsigned int i, const unsigned int level) const;
-		void getSubImage(unsigned int *sub_image,
-			unsigned int &sub_image_index, const unsigned int *start,
-			unsigned int *coords, unsigned int i, unsigned int image_index,
-			unsigned int area_covered, const unsigned int side_length) const;
+        void printImage(const unsigned int *start, const unsigned int *end,
+            unsigned int *coords, unsigned int i, unsigned int image_index,
+            unsigned int area_covered) const;
+        void getDownSampled(unsigned int *modes, unsigned int *coords,
+            unsigned int &block_num, unsigned int i,
+            const unsigned int level)const;
+        void getSubImage(unsigned int *sub_image,
+            unsigned int &sub_image_index, const unsigned int *start,
+            unsigned int *coords, unsigned int i, unsigned int image_index,
+            unsigned int area_covered, const unsigned int side_length) const;
 
         // Data
         // Raw image data, and dims[n] == 2^dim_expos[n]. 'expos' stands for

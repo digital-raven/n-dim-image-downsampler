@@ -119,14 +119,14 @@ NDimImage NDimImage::getDownSampled(unsigned int level) const
         memset(start, 0, num_dims * sizeof(int));
 
         // Get modes from our sub images
-		unsigned int *modes = new unsigned int[num_blocks];
-		unsigned int block_num = 0;
-		getDownSampled(modes, start, block_num, 0, level);
-		for (size_t i = 0; i < threads.size(); i++)
-		{
-			threads[i].join();
-		}
-		threads.clear();
+        unsigned int *modes = new unsigned int[num_blocks];
+        unsigned int block_num = 0;
+        getDownSampled(modes, start, block_num, 0, level);
+        for (size_t i = 0; i < threads.size(); i++)
+        {
+            threads[i].join();
+        }
+        threads.clear();
 
         // Combine modes of each sub image to form new image
         auto down_sampled = NDimImage(modes, down_sampled_expos, num_dims);
@@ -156,16 +156,17 @@ NDimImage NDimImage::getSubImage(const unsigned int *start,
     unsigned int *sub_image = new unsigned int[size];
 
     unsigned int sub_image_index = 0;
-	unsigned int *coords = new unsigned int[num_dims];
-	unsigned int side_length = 1 << l;
+    unsigned int *coords = new unsigned int[num_dims];
+    unsigned int side_length = 1 << l;
 
-	getSubImage(sub_image, sub_image_index, start, coords, 0, 0, image_size, side_length);
+    getSubImage(sub_image, sub_image_index, start, coords, 0, 0, image_size,
+        side_length);
 
     NDimImage ret_image = NDimImage(sub_image, side_exps, num_dims);
 
     delete[] sub_image;
     delete[] side_exps;
-	delete[] coords;
+    delete[] coords;
 
     return ret_image;
 }
@@ -177,75 +178,83 @@ void NDimImage::printImage() const
     memset(start, 0, num_dims * sizeof(int));
     unsigned int *coords = new unsigned int[num_dims];
 
-	printImage(start, dims, coords, 0, 0, image_size);
+    printImage(start, dims, coords, 0, 0, image_size);
 
-	delete[] start;
-	delete[] coords;
+    delete[] start;
+    delete[] coords;
+}  
+
+unsigned int *NDimImage::getDims() const
+{
+    unsigned int *temp_dims = new unsigned int[num_dims];
+    memcpy(temp_dims, dims, num_dims * sizeof(unsigned int));
+    return temp_dims;
 }
 
 // Private helpers
 // Private print function. Recursively iterates through whole image printing
 // each value. Each new dimension is separated by new lines
 void NDimImage::printImage(const unsigned int *start, const unsigned int *end,
-	unsigned int *coords, unsigned int i, unsigned int image_index,
-	unsigned int area_covered) const
-{
-	if (i == num_dims)
-	{
-		printf("%d ", image[image_index]);
-	}
-	else
-	{
-		area_covered /= dims[i];
-		for (unsigned int j = start[i]; j < end[i]; j++)
-		{
-			coords[i] = j;
-			printImage(start, end, coords, i + 1,
-				image_index + (area_covered * coords[i]), area_covered);
-		}
-		printf("\n");
-	}
-}
-
-void write_mode(const NDimImage *image, unsigned int *modes,
-	unsigned int block_num, unsigned int *coords, const unsigned int level)
-{
-	modes[block_num] = image->getSubImage(coords, level).getMode();
-
-	// We delete coords here instead of in getDownSampled because there's no
-	// guarantee the thread will start as we create it.
-	delete[] coords;
-}
-
-void NDimImage::getDownSampled(unsigned int *modes, unsigned int *coords,
-	unsigned int &block_num, unsigned int i, const unsigned int level) const
-{
-	if (i == num_dims)
-	{
-		unsigned int *temp_coords = new unsigned int[num_dims];
-		memcpy(temp_coords, coords, num_dims * sizeof(unsigned int));
-		threads.push_back(thread(write_mode, this, modes, block_num, temp_coords, level));
-		block_num++;
-	}
-	else
-	{
-		for (unsigned int j = 0; j < dims[i]; j += 1 << level)
-		{
-			coords[i] = j;
-			getDownSampled(modes, coords, block_num, i + 1, level);
-		}
-	}
-}
-
-void NDimImage::getSubImage(unsigned int *sub_image,
-	unsigned int &sub_image_index, const unsigned int *start,
-	unsigned int *coords, unsigned int i, unsigned int image_index,
-	unsigned int area_covered, const unsigned int side_length) const
+    unsigned int *coords, unsigned int i, unsigned int image_index,
+    unsigned int area_covered) const
 {
     if (i == num_dims)
     {
-		sub_image[sub_image_index] = image[image_index];
-    	sub_image_index++;
+        printf("%d ", image[image_index]);
+    }
+    else
+    {
+        area_covered /= dims[i];
+        for (unsigned int j = start[i]; j < end[i]; j++)
+        {
+            coords[i] = j;
+            printImage(start, end, coords, i + 1,
+                image_index + (area_covered * coords[i]), area_covered);
+        }
+        printf("\n");
+    }
+}
+
+void write_mode(const NDimImage *image, unsigned int *modes,
+    unsigned int block_num, unsigned int *coords, const unsigned int level)
+{
+    modes[block_num] = image->getSubImage(coords, level).getMode();
+
+    // We delete coords here instead of in getDownSampled because there's no
+    // guarantee the thread will start as we create it.
+    delete[] coords;
+}
+
+void NDimImage::getDownSampled(unsigned int *modes, unsigned int *coords,
+    unsigned int &block_num, unsigned int i, const unsigned int level) const
+{
+    if (i == num_dims)
+    {
+        unsigned int *temp_coords = new unsigned int[num_dims];
+        memcpy(temp_coords, coords, num_dims * sizeof(unsigned int));
+        threads.push_back(thread(write_mode, this, modes, block_num,
+            temp_coords, level));
+        block_num++;
+    }
+    else
+    {
+        for (unsigned int j = 0; j < dims[i]; j += 1 << level)
+        {
+            coords[i] = j;
+            getDownSampled(modes, coords, block_num, i + 1, level);
+        }
+    }
+}
+
+void NDimImage::getSubImage(unsigned int *sub_image,
+    unsigned int &sub_image_index, const unsigned int *start,
+    unsigned int *coords, unsigned int i, unsigned int image_index,
+    unsigned int area_covered, const unsigned int side_length) const
+{
+    if (i == num_dims)
+    {
+        sub_image[sub_image_index] = image[image_index];
+        sub_image_index++;
     }
     else
     {
