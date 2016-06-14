@@ -3,8 +3,8 @@
  *
  * Description:
  *  This program will read an array of integers represeinting a N-dimensional
- *  image. It will then downsample the image by a given level. The user shall
- *  write a data file containing the array and other
+ *  image. It will then downsample the image by a given level. The user is
+ *  responsible for writing a data file containing the array and other
  *  information. This datafile should first contain a number representing the
  *  number of dimensions of the image n, followed by n integers representing the
  *  lengths of each side of the image. This array will be called L. The whole
@@ -12,7 +12,7 @@
  *      2^L1 * 2^L2 * 2^L3... * 2^Ln
  *  large, and this size will be called s. The next line should contain the
  *  level of downsampling to be performed on the image, which should be no
- *  larger than the minimum value of L. There should then be s integers
+ *  larger than the minimum value in L. There should then be s integers
  *  representing the image itself.
  *
  * Usage: ./downsample
@@ -23,6 +23,19 @@
 #include <string>
 using namespace std;
 
+/*******************************************************************************
+ *  calc_size
+ *
+ *  Given an array of exponents, returns 2^arr[0] + 2^arr[1]... + 2^arr[n] 
+ *  where n is the size of the array.
+ *
+ *  Parameters:
+ *      expos (i): Array of exponents. Each length is 2^expos[i]
+ *      num_expos(i): Number of elements in expos
+ *
+ *  Returns:
+ *      Number of pixels present in image of described dimensions
+*******************************************************************************/
 unsigned int calc_size(const unsigned int *expos, const unsigned int num_expos)
 {
     unsigned int size = 1;
@@ -40,7 +53,7 @@ int main(int argc, const char **argv)
     string filename;
 
     // Read filename and open file for reading
-    cout >> "Enter filename -> ";
+    cout << "Enter filename -> ";
     cin >> filename;
     infile.open(filename);
     if (!infile.is_open())
@@ -76,7 +89,5 @@ int main(int argc, const char **argv)
     delete[] arr;
     delete[] dim_expos;
 
-    cin.ignore();
-    cin.get();
     return 0;
 }

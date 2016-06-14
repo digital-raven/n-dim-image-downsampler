@@ -81,11 +81,7 @@ class NDimImage
         unsigned int getMode() const { return mode; }
         unsigned int getNumDims() const { return num_dims; }
         unsigned int getImageSize() const { return image_size; }
-        unsigned int *getDims() const {
-            unsigned int *temp_dims = new unsigned int[num_dims];
-            memcpy(temp_dims, dims, num_dims * sizeof(unsigned int));
-            return temp_dims;
-        }
+        unsigned int *getDims() const;
 
     private:
 
