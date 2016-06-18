@@ -1,6 +1,13 @@
 #pragma once
-#include <functional>
-
+/*******************************************************************************
+ * The NDimImage class represents an N dimensional image where N may be decided
+ * at runtime. The underlying storage is simply a massive one dimensional array
+ * treated as a multi dimensional image depending on the number of requested
+ * dimensions and the lengths of each of the image's sides.
+ *
+ * There are methods to grab sub blocks from the image, to downsample it, and
+ * basic getters and setters.
+*******************************************************************************/
 class NDimImage
 {
     public:
@@ -20,14 +27,14 @@ class NDimImage
  * image.
  *
  * Parameters:
- *  image (I): Array of integers which will be copied to this.
- *  dim_expos I: Array of integers indicating lengths of sides of image. Should
- *      be same size as num_dims. image should be
- *      2^L1 * 2^L2 * 2^L3... * 2^Ln large, where n is the length of dim_expos.
- *  num_dims (I): lengh of dim_expos.
+ *  I: image - Array of integers which will be copied to this.
+ *  I: dim_expos - Each side of the image will be 2^dim_expos[i] large, where i
+ *      is an index in dim_expos.
+ *  I: num_dims - lengh of dim_expos.
 *******************************************************************************/
         NDimImage(const unsigned int *image, const unsigned int *dim_expos,
             const unsigned int num_dims);
+
 
 /*******************************************************************************
  * NDimImage copy
@@ -49,7 +56,7 @@ class NDimImage
  * Returns a new NDimImage instance created from a downsampled version of this
  *
  * Parameters:
- *  level (I): Desired level of downsampling. Should only be as large as the
+ *  I: level - Desired level of downsampling. Should only be as large as the
  *      smallest value in dim_expos.
 *******************************************************************************/
         NDimImage getDownSampled(unsigned int level) const;
@@ -61,9 +68,9 @@ class NDimImage
  * image.
  *
  * Parameters:
- *  start (I): array of integers indicating location of starting corner. Should
+ *  I: start - array of integers indicating location of starting corner. Should
  *      be the same size as num_dims
- *  l (I):  Desired length of each side of the cube. Cube size will be
+ *  I: l - Desired length of each side of the cube. Cube size will be
  *      (2^l)^num_dims
 *******************************************************************************/
         NDimImage getSubImage(const unsigned int *start,
@@ -77,37 +84,46 @@ class NDimImage
 *******************************************************************************/
         void printImage() const;
 
-        // Simple getters
+        /* Simple Getters */
         unsigned int getMode() const { return mode; }
         unsigned int getNumDims() const { return num_dims; }
         unsigned int getImageSize() const { return image_size; }
+
+
+/*******************************************************************************
+ * getDims
+ *
+ * This function returns a memory copy of the array holding the lengths of each
+ * of the image's sides. New memory is created with this method, so the caller
+ * is responsible for cleanup.
+*******************************************************************************/
         unsigned int *getDims() const;
 
     private:
 
-        // Methods
-        void printImage(const unsigned int *start, const unsigned int *end,
-            unsigned int *coords, unsigned int i, unsigned int image_index,
-            unsigned int area_covered) const;
+        // Recursive helper methods for printing, downsampling, and grabbing
+        // a sub image
+        void printImage(unsigned int *coords, unsigned int i,
+            unsigned int image_index, unsigned int area_covered) const;
         void getDownSampled(unsigned int *modes, unsigned int *coords,
             unsigned int &block_num, unsigned int i,
-            const unsigned int level)const;
+            const unsigned int level) const;
         void getSubImage(unsigned int *sub_image,
             unsigned int &sub_image_index, const unsigned int *start,
             unsigned int *coords, unsigned int i, unsigned int image_index,
             unsigned int area_covered, const unsigned int side_length) const;
-
+        
         // Data
-        // Raw image data, and dims[n] == 2^dim_expos[n]. 'expos' stands for
-        // exponents
+        // Raw image data, 
         unsigned int *image;
-        unsigned int *dim_expos;
-        unsigned int *dims;
+        unsigned int *dim_expos; // dims[n] == 2^dim_expos[n]. 'expos' stands
+        unsigned int *dims;      // for exponents
 
         // Total number of pixels in image and number of dimensions
         unsigned int image_size;
         unsigned int num_dims;
 
-        // Most commonly occuring value in image
+        // most commonly occuring value in image
         unsigned int mode;
 };
+
